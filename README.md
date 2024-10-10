@@ -12,13 +12,19 @@ All remaining requirements are already included in macOS. Patches are welcome fo
 
 ## Usage
 
-```
+```shell
 windows-esd-to-iso ESD_FILE
 ```
 
+  - Or use a one-liner
+
+    ```shell
+    curl -fsSL https://raw.githubusercontent.com/mattieb/windows-esd-to-iso/refs/heads/main/windows-esd-to-iso | bash -s -- ESD_FILE
+    ```
+
 Converts the ESD in ESD_FILE to ISO format.
 
-## How it works
+## How It Works
 
 [windows-esd-to-iso](./windows-esd-to-iso) will use the wimlib tools to inspect, deconstruct, and assemble into an installation tree the images inside an ESD.
 
@@ -41,7 +47,7 @@ There are a few ways you can get an ESD to convert with this tool.
 - Paul Rockwell's [w11arm_esd2iso](https://communities.vmware.com/t5/VMware-Fusion-Documents/w11arm-esd2iso-a-utility-to-create-Windows-11-ARM-ISOs-from/ta-p/2957381) does both downloading and conversion of ARM images in a single shot.
 - Bogdan's [ESD to ISO on macOS](https://gist.github.com/b0gdanw/e36ea84828dbd19e03eff6158f1fc77c) explains how to get and search through the catalog and download manually.
 
-## Converting to USB drives
+## Converting to USB Drives
 
 You can convert an ISO produced with this tool to a USB drive with [windows-iso-to-usb](https://github.com/mattieb/windows-iso-to-usb).
 
