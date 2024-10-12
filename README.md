@@ -19,7 +19,7 @@ windows-esd-to-iso ESD_FILE
   - Or use a one-liner
 
     ```shell
-    curl -fsSL https://raw.githubusercontent.com/mattieb/windows-esd-to-iso/refs/heads/main/windows-esd-to-iso | bash -s -- ESD_FILE
+    curl -fsSL https://github.com/mattieb/windows-esd-to-iso/raw/main/windows-esd-to-iso | bash -s -- ESD_FILE
     ```
 
 Converts the ESD in ESD_FILE to ISO format.
