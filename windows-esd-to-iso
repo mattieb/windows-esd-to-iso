@@ -1,30 +1,70 @@
 #!/bin/sh
 
-set -ex
+# Color support from portable-color <https://mattiebee.dev/portable-color>
+
+_try_color() {
+	[ -n "${NO_COLOR}" ] && return 1
+	[ -n "${CLICOLOR_FORCE}" ] && return 0
+	test -t 1 || return 1
+	[ -n "${CLICOLOR}" ] && return 0
+	return 0
+}
+setup_color() {
+	TPUT=$(which tput 2>/dev/null) && _try_color || TPUT=true
+}
+_qtput() {
+	[ -z "${TPUT}" ] && return 0 # if not set up, don't do anything
+	"${TPUT}" "$@" 2>/dev/null || true
+}
+_twrap() {
+	output="$1"
+	shift
+	_qtput "$@"
+	printf %s "$output"
+	_qtput sgr0
+}
+bold() { _twrap "$1" bold; }
+green() { _twrap "$1" setaf 2; }
+blue() { _twrap "$1" setaf 4; }
+
+print_task() { echo "$(green "==>") $(bold "$@")"; }
+print_subtask() { echo "$(blue "==>") $(bold "$@")"; }
+
+set -e
+setup_color
 
 esd="${1}"
 tmpdir=$(mktemp -d)
 
 __cleanup() {
-    set -e
+    print_task "Cleaning up $(green "${tmpdir}")"
     rm -rf "${tmpdir}"
 }
 trap __cleanup EXIT
 
+print_task "Exporting images from $(green "${esd}")"
+
 image_count=$(wiminfo "${esd}" --header | grep '^Image Count' | cut -d= -f 2 )
+echo "Found ${image_count} images."
 
+print_subtask "Exporting image 1"
 wimapply "${esd}" 1 "${tmpdir}"
-wimexport "${esd}" 2 "${tmpdir}/sources/boot.wim" --compress=LZX --chunk-size 32K
-wimexport "${esd}" 3 "${tmpdir}/sources/boot.wim" --compress=LZX --chunk-size 32K --boot
 
-for index in $(seq 4 ${image_count})
+print_subtask "Exporting image 2"
+wimexport "${esd}" 2 "${tmpdir}/sources/boot.wim" --compress=LZX --chunk-size=32K
+
+print_subtask "Exporting image 3"
+wimexport "${esd}" 3 "${tmpdir}/sources/boot.wim" --compress=LZX --chunk-size=32K --boot
+
+for index in $(seq 4 "${image_count}")
 do
-    wimexport "${esd}" "${index}" "${tmpdir}/sources/install.esd" --compress=LZMS --chunk-size 128K
+    print_subtask "Exporting image ${index}"
+    wimexport "${esd}" "${index}" "${tmpdir}/sources/install.esd" --compress=LZMS --chunk-size 128K --recompress
 done
 
 basename="$(basename "${esd}" .esd)"
 iso="${basename}.iso"
 
 rm -f "${iso}"
+print_task "Creating ${iso}"
 hdiutil makehybrid -o "${iso}" -iso -udf -hard-disk-boot -eltorito-boot "${tmpdir}/efi/microsoft/boot/efisys.bin" -iso-volume-name ESD_ISO -udf-volume-name ESD-ISO "${tmpdir}"
-
