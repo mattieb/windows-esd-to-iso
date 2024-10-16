@@ -24,6 +24,7 @@ _twrap() {
 	_qtput sgr0
 }
 bold() { _twrap "$1" bold; }
+red() { _twrap "$1" setaf 1; }
 green() { _twrap "$1" setaf 2; }
 blue() { _twrap "$1" setaf 4; }
 
@@ -33,7 +34,28 @@ print_subtask() { echo "$(blue "==>") $(bold "$@")"; }
 set -e
 setup_color
 
-esd="${1}"
+if [ -z "$1" ] || [ "$1" = "-h" ]; then
+    echo "$(red "Usage:") $(basename "$0") ESD"
+    exit 0
+fi
+
+check_tool() {
+    if ! which "$1" >/dev/null; then
+        echo "$(red "Error:") wimlib tools not found"
+		exit 1
+	fi
+}
+check_tool wiminfo
+check_tool wimapply
+check_tool wimexport
+
+esd="$1"
+
+if [ ! -f "${esd}" ]; then
+    echo "$(red "Error:") ${esd} not found"
+    exit 2
+fi
+
 tmpdir=$(mktemp -d)
 
 __cleanup() {
