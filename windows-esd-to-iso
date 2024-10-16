@@ -1,4 +1,26 @@
 #!/bin/sh
+# 
+# Copyright (c) 2023, 2024 Mattie Behrens.
+# 
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject
+# to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+# ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
 
 # Color support from portable-color <https://mattiebee.dev/portable-color>
 
@@ -77,15 +99,20 @@ print_subtask "Exporting image 1"
 wimapply "${esd}" 1 "${tmpdir}"
 
 print_subtask "Exporting image 2"
-wimexport "${esd}" 2 "${tmpdir}/sources/boot.wim" --compress=LZX --chunk-size=32K
+wimexport "${esd}" 2 \
+	"${tmpdir}/sources/boot.wim" \
+	--compress=LZX --chunk-size=32K
 
 print_subtask "Exporting image 3"
-wimexport "${esd}" 3 "${tmpdir}/sources/boot.wim" --compress=LZX --chunk-size=32K --boot
+wimexport "${esd}" 3 \
+	"${tmpdir}/sources/boot.wim" \
+	--compress=LZX --chunk-size=32K --boot
 
-for index in $(seq 4 "${image_count}")
-do
+for index in $(seq 4 "${image_count}"); do
 	print_subtask "Exporting image ${index}"
-    wimexport "${esd}" "${index}" "${tmpdir}/sources/install.esd" --compress=LZMS --chunk-size 128K --recompress
+	wimexport "${esd}" "${index}" \
+		"${tmpdir}/sources/install.esd" \
+		--compress=LZMS --chunk-size 128K --recompress
 done
 
 basename="$(basename "${esd}" .esd)"
@@ -93,4 +120,10 @@ iso="${basename}.iso"
 
 rm -f "${iso}"
 print_task "Creating ${iso}"
-hdiutil makehybrid -o "${iso}" -iso -udf -hard-disk-boot -eltorito-boot "${tmpdir}/efi/microsoft/boot/efisys.bin" -iso-volume-name ESD_ISO -udf-volume-name ESD-ISO "${tmpdir}"
+hdiutil makehybrid \
+	-o "${iso}" \
+	-iso -udf \
+	-hard-disk-boot -eltorito-boot "${tmpdir}/efi/microsoft/boot/efisys.bin" \
+	-iso-volume-name ESD_ISO \
+	-udf-volume-name ESD-ISO \
+	"${tmpdir}"
