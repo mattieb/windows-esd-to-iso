@@ -35,13 +35,13 @@ set -e
 setup_color
 
 if [ -z "$1" ] || [ "$1" = "-h" ]; then
-    echo "$(red "Usage:") $(basename "$0") ESD"
-    exit 0
+	echo "$(red "Usage:") $(basename "$0") ESD"
+	exit 0
 fi
 
 check_tool() {
-    if ! which "$1" >/dev/null; then
-        echo "$(red "Error:") wimlib tools not found"
+	if ! which "$1" >/dev/null; then
+		echo "$(red "Error:") wimlib tools not found"
 		exit 1
 	fi
 }
@@ -52,21 +52,25 @@ check_tool wimexport
 esd="$1"
 
 if [ ! -f "${esd}" ]; then
-    echo "$(red "Error:") ${esd} not found"
-    exit 2
+	echo "$(red "Error:") ${esd} not found"
+	exit 2
 fi
 
 tmpdir=$(mktemp -d)
 
 __cleanup() {
-    print_task "Cleaning up $(green "${tmpdir}")"
-    rm -rf "${tmpdir}"
+	print_task "Cleaning up $(green "${tmpdir}")"
+	rm -rf "${tmpdir}"
 }
 trap __cleanup EXIT
 
 print_task "Exporting images from $(green "${esd}")"
 
-image_count=$(wiminfo "${esd}" --header | grep '^Image Count' | cut -d= -f 2 )
+image_count=$(wiminfo "${esd}" --header | grep '^Image Count' | cut -d= -f 2)
+if ! [ "${image_count}" -gt 0 ] 2>/dev/null; then
+	echo "$(red "Error:") could not get ${esd} image count"
+	exit 3
+fi
 echo "Found ${image_count} images."
 
 print_subtask "Exporting image 1"
@@ -80,7 +84,7 @@ wimexport "${esd}" 3 "${tmpdir}/sources/boot.wim" --compress=LZX --chunk-size=32
 
 for index in $(seq 4 "${image_count}")
 do
-    print_subtask "Exporting image ${index}"
+	print_subtask "Exporting image ${index}"
     wimexport "${esd}" "${index}" "${tmpdir}/sources/install.esd" --compress=LZMS --chunk-size 128K --recompress
 done
 
