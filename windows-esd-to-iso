@@ -123,7 +123,20 @@ print_task "Creating ${iso}"
 hdiutil makehybrid \
 	-o "${iso}" \
 	-iso -udf \
-	-hard-disk-boot -eltorito-boot "${tmpdir}/efi/microsoft/boot/efisys.bin" \
+	-eltorito-specification "(
+		{
+			eltorito-boot = ${tmpdir}/boot/etfsboot.com;
+			no-emul-boot = 1;
+			boot-load-size = 8;
+			eltorito-platform = 0x00;
+		},
+		{
+			eltorito-boot = ${tmpdir}/efi/microsoft/boot/efisys.bin;
+			no-emul-boot = 1;
+			boot-load-size = 1;
+			eltorito-platform = 0xef;
+		}
+	)" \
 	-iso-volume-name ESD_ISO \
 	-udf-volume-name ESD-ISO \
 	"${tmpdir}"

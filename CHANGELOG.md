@@ -1,5 +1,9 @@
 # Changes
 
+## Unreleased
+
+1.  Added dual-boot capability to the generated ISO image to allow it to be booted on either BIOS or EFI. Note that this does _not_ circumvent [the Windows 11 UEFI requirement](https://www.microsoft.com/en-us/windows/windows-11-specifications#table1), which the installer may check for.
+
 ## 1.0.0 - 2024-10-15
 
 This is the first actual release. Before this point, windows-esd-to-iso was a rolling repository. All changes here are from the original version.
