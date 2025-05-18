@@ -6,9 +6,18 @@ Since Microsoft does not distribute Windows ARM ISO images, [a way to download E
 
 ## Requirements
 
+### macOS
+
 - The command-line tools from [wimlib](https://wimlib.net) (available in [Homebrew](https://brew.sh))
 
 All remaining requirements are already included in macOS. Patches are welcome for portability.
+
+### Ubuntu
+
+Install the following packages with "apt install":
+
+- genisoimage
+- wimtools
 
 ## Usage
 

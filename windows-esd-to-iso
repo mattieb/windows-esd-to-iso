@@ -84,7 +84,7 @@ __cleanup() {
 	print_task "Cleaning up $(green "${tmpdir}")"
 	rm -rf "${tmpdir}"
 }
-trap __cleanup EXIT
+#trap __cleanup EXIT
 
 print_task "Exporting images from $(green "${esd}")"
 
@@ -120,23 +120,34 @@ iso="${basename}.iso"
 
 rm -f "${iso}"
 print_task "Creating ${iso}"
-hdiutil makehybrid \
-	-o "${iso}" \
-	-iso -udf \
-	-eltorito-specification "(
-		{
-			eltorito-boot = ${tmpdir}/boot/etfsboot.com;
-			no-emul-boot = 1;
-			boot-load-size = 8;
-			eltorito-platform = 0x00;
-		},
-		{
-			eltorito-boot = ${tmpdir}/efi/microsoft/boot/efisys.bin;
-			no-emul-boot = 1;
-			boot-load-size = 1;
-			eltorito-platform = 0xef;
-		}
-	)" \
-	-iso-volume-name ESD_ISO \
-	-udf-volume-name ESD-ISO \
-	"${tmpdir}"
+if [ -n "$(which mkhybrid 2>/dev/null)" ]; then
+	hdiutil makehybrid \
+		-o "${iso}" \
+		-iso -udf \
+		-eltorito-specification "(
+			{
+				eltorito-boot = ${tmpdir}/boot/etfsboot.com;
+				no-emul-boot = 1;
+				boot-load-size = 8;
+				eltorito-platform = 0x00;
+			},
+			{
+				eltorito-boot = ${tmpdir}/efi/microsoft/boot/efisys.bin;
+				no-emul-boot = 1;
+				boot-load-size = 1;
+				eltorito-platform = 0xef;
+			}
+		)" \
+		-iso-volume-name ESD_ISO \
+		-udf-volume-name ESD-ISO \
+		"${tmpdir}"
+else
+	mkisofs \
+		-quiet \
+		-b boot/etfsboot.com -no-emul-boot \
+		-eltorito-alt-boot -e efi/microsoft/boot/efisys.bin -no-emul-boot \
+		-o "${iso}" \
+		-udf \
+		-V ESD-ISO \
+		"${tmpdir}"
+fi
