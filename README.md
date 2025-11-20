@@ -18,6 +18,12 @@ windows-esd-to-iso ESD_FILE
 
 Converts the ESD in ESD_FILE to ISO format.
 
+On completion or on error, this tool removes its temporary directory (which can be large.) If you don't want this, set `NO_CLEANUP` to any value:
+
+```
+NO_CLEANUP=1 windows-esd-to-iso ESD_FILE
+```
+
 ## How it works
 
 [windows-esd-to-iso](./windows-esd-to-iso) will use the wimlib tools to inspect, deconstruct, and assemble into an installation tree the images inside an ESD.
@@ -35,11 +41,7 @@ If the script exits for any reason—successful or otherwise—the temporary dir
 
 ## Downloading ESDs
 
-There are a few ways you can get an ESD to convert with this tool.
-
-- [My own download-windows-esd tool](https://github.com/mattieb/download-windows-esd) will get the Windows 11 ESD catalog from Microsoft, then download any ESD you wish that is referenced in that catalog and verify its SHA1 checksum.
-- Paul Rockwell's [w11arm_esd2iso](https://communities.vmware.com/t5/VMware-Fusion-Documents/w11arm-esd2iso-a-utility-to-create-Windows-11-ARM-ISOs-from/ta-p/2957381) does both downloading and conversion of ARM images in a single shot.
-- Bogdan's [ESD to ISO on macOS](https://gist.github.com/b0gdanw/e36ea84828dbd19e03eff6158f1fc77c) explains how to get and search through the catalog and download manually.
+You can use [download-windows-esd](https://github.com/mattieb/download-windows-esd) to get the Windows 11 ESD catalog from Microsoft, then download any ESD you wish that is referenced in that catalog and verify its checksum.
 
 ## Converting to USB drives
 
